@@ -1,0 +1,12 @@
+body{
+    background-color: white;
+}
+
+.logo{
+    max-width: 200px;
+}
+
+.WLogo{
+    max-width: 280px;
+    border-radius: 10%;
+}

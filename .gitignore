@@ -1,0 +1,14 @@
+Berechner.db
+kleidungen.svg
+.env
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VSCode files
+.vscode/
+
+# General cache folders
+.cache/
