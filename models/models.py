@@ -23,3 +23,4 @@ class USER(Base):
     is_verified = Column(Boolean, default=False)  # Determines verification status
     password = Column(String)  # Adds a password column that stores strings 
     created_at = Column(DateTime, default=datetime.utcnow)  # Timestamp when user is created
+    force_password_change = Column(Boolean, default=True) # Forces password changeon frits time login

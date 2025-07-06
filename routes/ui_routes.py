@@ -37,6 +37,8 @@ def root(request: Request, error: str = None,):
         alert = "Name must be at least 4 characters."
     elif error == "user_exists":
         alert = "User Account already exists."
+    elif error == "password_changed":
+        alert = "Password successfully updated. Please log in."
 
     context = {
         "request": request, # Passes the request for Jinja2 to access
@@ -98,9 +100,48 @@ def login_route(
     # Confirms password is correct
     if not crud.confirm_password(db, email=email, password=password):
         return RedirectResponse(url="/UI/admin?error=incorrect_password", status_code=303)
+    
+    if user.force_password_change:
+        return RedirectResponse(url=f"/UI/admin/change_password?email={email}", status_code=303)
 
     # Login successful
     return RedirectResponse(url="/UI", status_code=303)
+
+# Change password page
+@router.get("/admin/change_password", response_class=HTMLResponse)
+def change_password_page(request: Request, email: str):
+    return templates.TemplateResponse("change_password.html", {"request": request, "email": email})
+
+# Password change handling
+@router.post("/admin/change_password")
+def change_password_submit(
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    
+    # Validate that passwords match
+    if password != confirm_password:
+        return templates.TemplateResponse("change_password.html", {
+            "request": request,
+            "email": email,
+            "alert": "Passwords do not match."
+        })
+    
+    # Updates the password in the database
+    result = crud.change_password(db, email=email, new_password=password)
+
+    if result != "success":
+        return templates.TemplateResponse("change_password.html", 
+                                          {"request": request,
+                                            "email": email, 
+                                            "alert": result # Displays a specific error from CRUD function
+                                            }) 
+
+    return RedirectResponse(url="/UI/admin?msg=password_changed", status_code=303)
+
 
 # GET route for admin URL "/admin" returning an HTML page
 @router.get("/", response_class=HTMLResponse)

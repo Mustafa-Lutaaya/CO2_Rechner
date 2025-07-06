@@ -98,6 +98,7 @@ class CRUD:
         # Creates a verified user with required fields
         user.password = hashedpwd
         user.is_verified = True # Marks user as verified
+        user.force_password_change = True # Forces password change on first login
         
         EmailHandler.send_to_user(user.name, user.email, pwd)
         
@@ -128,16 +129,17 @@ class CRUD:
         user = self.get_user_by_email(db, email) # Fetches the user from database using the provided email
 
         if not user:
-            return None # Raises an excpetion if user isnt found
+            return "User not found" # Raises an excpetion if user isnt found
         
         if not PWDHandler.validate_password_strength(new_password):
-            return None   # Raises an exception if password doesn meant the criteria
+            return "Password must be at least 8 characters long, include upper and lower case letters, a number, and a special character."   # Raises an exception if password doesn meant the criteria
             
         hashed_pwd = PWDHandler.hash_password(new_password) # Hashes the new password
         user.password = hashed_pwd # Updates the Password field 
+        user.force_password_change = False # Clears the force change flag
         db.commit() # Commits the session to save all the changes permanetly in the database
         db.refresh(user) # Refreshes the ORM instance to ensure it reflects the latest state from the database
-        return user # Returns the updated User or None if none was found
+        return "success" # Returns the updated User or None if none was found
 
     
     # Function to confirm password
