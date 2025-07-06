@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO₂-Rechner</title>
+
+    <!-- Bootstrap CSS Loader For Responsive Styling & Layout -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS FOr Loading Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom CSS File in 'static' Folder -->
+    <link rel="stylesheet" href="/static/styles.css">
+
+    <!-- Site Favicon Displayed In The Browser Tab -->
+    <link href="/static/favicon.png" rel="icon">
+
+</head>
+
+<body>
+   <!-- Alert Placement -->
+    <div class="container mt-3">
+      {% if alert %}
+      <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        {{ alert }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Logo Placement -->
+    <div class="container mt-5 text-center text-danger">
+        <div class="row align-items-center">
+            <div class="col">
+                <img id="logo" class="logo" src="/static/logo1.png" alt="WLogo">
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Placement -->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h4 class="text-center"><strong>youngcaritas x Kleidertausch CO₂-Rechner</strong></h4>
+                <br/>
+                <!-- Input for Login-->
+                    <form action="/UI/admin/login" method="post"> 
+                        <!-- Email Field -->
+                        <div class="mb-2 ">
+                            <label for="email" class="form-label mb-1"><h5 class="mb-1">Email Address: </h5></label>
+                            <input type="email" name="email" class="form-control form-control-sm" placeholder="Input Email Address" required>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label mb-1"><h5 class="mb-1">Password: </h5></label>
+                            <input type="password" name="password" class="form-control form-control-sm" placeholder="Input Password" required>
+                        </div>
+
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" name="action" value="login" class="btn btn-outline-danger btn-sm">Login</button>
+                    </div>
+                    </form>
+                    <!-- To Registration Modal -->
+                    <div class="d-grid mt-2">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#myModal" >Register</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Registration Modal -->
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header bg-danger">
+        <h4 class="modal-title text-white text-center">Register Here:</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class=" container text-black modal-body">
+        <form action="/UI/admin/register" method="post">
+
+          <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" class="form-control" id="name" placeholder="Enter Your Name" name="name" required>
+          </div>
+
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" class="form-control" id="email" placeholder="Enter Your Email Address" name="email" required>
+          </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid">
+                <button type="submit" name="action" value="register" class="btn btn-outline-danger btn-sm">Register</button>
+            </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    <!-- Loads Bootstrap JS Bundle Including Popper for interactive components like modals, carousels and so on -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

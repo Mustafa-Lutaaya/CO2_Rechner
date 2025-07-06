@@ -1,6 +1,5 @@
-Berechner.db
-kleidungen.svg
 .env
+Notes.py
 
 # Python cache files
 __pycache__/

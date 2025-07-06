@@ -40,14 +40,53 @@ Unit test: Test a single route function or utility function, mocking the databas
 Integration test: Test the actual HTTP request to your API, with the database and other services running.
 
 docker-compose down -v
+docker-compose down -v --remove-orphans
 docker-compose build --no-cache
-docker-compose up
+docker-compose up 
 
-for category in grouped_items:
-    for item in category["items"]:
-        mongo.co2.update_one(
-            {"name": item["name"], "category": category["category"]},
-            {"$set": item},
-            upsert=True
-        )
+
+LOCAL DOCKER
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  pgdata:
+
+  
+SUPA BASE DOCKER
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+
 '''

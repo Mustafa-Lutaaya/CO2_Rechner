@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO₂-Rechner: Admin</title>
+
+    <!-- Bootstrap CSS Loader For Responsive Styling & Layout -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS FOr Loading Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom CSS File in 'static' Folder -->
+    <link rel="stylesheet" href="/static/styles.css">
+
+    <!-- Site Favicon Displayed In The Browser Tab -->
+    <link href="/static/favicon.png" rel="icon">
+</head>
+<body>
+    <!-- Bootstrap Alerts -->
+     <div class="fixed-top">
+        <div class="row justify-content-center align-items-center">
+            {% if msg == "created" %}
+            <div class="alert alert-sm fs-15 alert-success alert-dismissible fade show" role="alert" style="max-width: 300px;">
+                Item created successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            {% elif msg == "updated" %}
+            <div class="alert alert-sm fs-15 alert-info alert-dismissible fade show" role="alert" style="max-width: 300px;">
+                Item updated successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            {% elif msg == "deleted" %}
+            <div class="alert alert-sm fs-15 alert-warning alert-dismissible fade show" role="alert" style="max-width: 300px;">
+                Item deleted successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            {% elif msg == "exists" %}
+            <div class="alert alert-sm fs-15 alert-danger alert-dismissible fade show" role="alert" style="max-width: 300px;">
+                Item already exists!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            {% elif msg == "notfound" %}
+            <div class="alert alert-sm fs-15 alert-dark alert-dismissible fade show" role="alert" style="max-width: 300px;">
+                Item not found.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            {% elif msg == "user_created" %}
+            <div class="alert alert-sm fs-15 alert-success alert-dismissible fade show" role="alert" style="max-width: 300px;">
+            User registered successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            {% elif msg == "user_verified" %}
+            <div class="alert alert-sm fs-15 alert-success alert-dismissible fade show" role="alert" style="max-width: 300px;">
+            User verified successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            {% elif msg == "user_rejected" %}
+            <div class="alert alert-sm fs-15 alert-danger alert-dismissible fade show" role="alert" style="max-width: 300px;">
+            User rejected.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            {% elif msg == "user_notfound" %}
+            <div class="alert alert-sm fs-15 alert-warning alert-dismissible fade show" role="alert" style="max-width: 300px;">
+            User not found.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            {% if success %}
+            <div class="alert alert-success">{{ success }}</div>
+            {% endif %}
+        </div>
+     </div>
+
+    <!-- To Spar Rechner -->
+    <div class="container mt-3">
+        <button type="button" class="btn btn-outline-success btn-sm text-black" data-bs-toggle="modal" data-bs-target="#sparModal">Spar-Rechner</button>
+    </div>
+
+    <!-- Exit Confirmation Modal -->
+    <div class="modal fade" id="sparModal" tabindex="-1" aria-labelledby="sparModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm-down">
+        <div class="modal-content">
+
+          <!-- Modal Header -->
+          <div class="modal-header bg-success text-center">
+            <h5 class="modal-title text-white" id="sparModalLabel">Proceed to the Spar Rechner?</h5>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="modal-footer bg-white">
+            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+            <a href="http://localhost:5000/UI/main" class="btn btn-outline-success btn-md">
+                Yes, Proceed.
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Logo Placement -->
+    <div class="container mt-5 text-center text-danger">
+        <div class="row align-items-center">
+            <div class="col">
+                <img id="logo" class="logo" src="/static/recolored_logobg.png" alt="Logo" width="300">
+            </div>
+        </div>
+    </div>
+
+    <!-- Title Placement -->
+    <div class="container mt-3 text-center text-success">
+        <h3><strong>CO₂-Emission Data</strong></h3>
+    </div>
+
+    <!-- Add Item -->
+    <div class="container mt-3">
+        <h5 class=" text-success"><strong>Add Item</strong></h5>  
+        <div class="d-flex justify-content-start align-items-end gap-4 flex-wrap">
+                <form action="/UI/create" method="post" class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <input type="text" name="category" placeholder="Category" class="form-control form-control-md text-uppercase" required>
+                    </div>
+                    <div class="col-auto">
+                        <input type="text" name="name" placeholder="Name" class="form-control form-control-md" required>
+                    </div>
+                    <div class="col-auto">
+                        <input type="number" step="0.01" name="base_co2" placeholder="Base CO₂" class="form-control form-control-md" required>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-success btn-md">Create</button>
+                    </div>
+                </form>
+        </div>
+    </div>
+
+    <!-- Search Item Row -->
+    <div class="container mt-3">
+        <h5 class=" text-success"><strong>Search</strong></h5> 
+        <div class="d-flex justify-content-start align-items-end gap-4 flex-wrap">
+
+                <!-- Search Form  -->
+                <form action="/UI/search" method="get" class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <input type="text" name="name" placeholder="Search by name" class="form-control form-control-md" required>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-success btn-md">Search</button>
+                    </div>
+                </form>
+        </div>
+    </div> 
+
+   <!-- Item List Table -->
+    <div class="container mt-3">
+        <h3 class=" text-success text-center"><strong>ITEMS</strong></h3> 
+        <table class="table table-striped table-bordered">
+            <thead class="table-success text-center">
+                <tr>
+                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Base CO₂ (kg)</th>
+                    <th>Modify</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr class="text-center">
+                    <td>{{ item.category }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.base_co2 }}</td>
+                    <td class="text-center d-flex justify-content-center gap-4">
+                        <!-- Edit Button -->
+                        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#updateModal{{ loop.index }}">
+                            Edit
+                        </button>
+                        <!-- Delete Button -->
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ loop.index }}">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+
+    <!--  Users Table -->
+    <div class="container mt-5">
+        <table class="table table-striped table-bordered">
+            <thead class="table-success text-center">
+                <h6 class=" text-success"><strong>Users</strong></h6>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Approve</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="text-center">
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.is_verified %}
+                            <span class="badge bg-success">Verified</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="/UI/verify">
+                            <input type="hidden" name="email" value="{{ user.email }}">
+                             <button type="submit" class="btn btn-sm btn-outline-success" 
+                             {% if user.is_verified %} disabled {% endif %} >
+                                Verify
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" action="/UI/delete_user">
+                            <input type="hidden" name="email" value="{{ user.email }}">
+                            <button type="submit" class="btn btn-sm btn-outline-success">
+                               Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal to trigger item info for update-->
+    {% for item in items %}
+    <div class="modal fade" id="updateModal{{ loop.index }}" tabindex="-1" aria-labelledby="updateModalLabel{{ loop.index }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/UI/update" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateModalLabel{{ loop.index }}">Update: {{ item.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" name="original_name" value="{{ item.name }}">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" name="name" class="form-control" value="{{ item.name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <input type="text" name="category" class="form-control" value="{{ item.category }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Base CO₂</label>
+                        <input type="number" step="any" name="base_co2" class="form-control" value="{{ item.base_co2 }}">
+                    </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save changes</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Delete Confirmation Modal -->
+    {% for item in items %}
+    <div class="modal fade" id="deleteModal{{ loop.index }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ loop.index }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm-down">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header bg-danger text-center">
+                    <h5 class="modal-title text-white" id="deleteModalLabel{{ loop.index }}">Delete {{ item.name }}?</h5>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+                        <form action="/UI/delete" method="post">
+                            <input type="hidden" name="name" value="{{ item.name }}" required>
+                            <button type="submit" class="btn btn-outline-danger btn-md">Delete</button>
+                        </form> 
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Loads Bootstrap JS Bundle Including Popper for interactive components like modals, carousels and so on -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>    

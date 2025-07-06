@@ -4,21 +4,16 @@ create:
 act:
 	@powershell -ExecutionPolicy Bypass -File ./CO2/Scripts/Activate.ps1
 
-start:
-	@uvicorn app.main:app --reload --port 5000
-
-run:
-	@python main.py
-
-freeze:
-	@.\CO2\Scripts\python.exe -m pip freeze > requirements.txt
-
 install:
 	@CO2/Scripts/pip install -r requirements.txt
 	@CO2/Scripts/python.exe -m pip install --upgrade pip
 
-delete:
-	@rmdir /s /q venv
+freeze:
+	@.\CO2\Scripts\python.exe -m pip freeze > requirements.txt
 
-generate:
-	@python config/keys.py
+start:
+	@uvicorn app.main:app --reload --port 5050
+
+pytest:
+	@pytest tests/test_api.py
+	@pytest tests/test_crud.py

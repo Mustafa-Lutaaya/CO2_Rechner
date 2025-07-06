@@ -1,188 +1,189 @@
 # FastAPI Components to build the web app.
-from fastapi import APIRouter, Request, Form # Imports FastAPI , Request for handling HTTP requests & Form to accept data submitted via POST Requests
-from fastapi.responses import HTMLResponse, RedirectResponse, Response # Specifies that a route returns HTML
-from fastapi.staticfiles import StaticFiles # Serves Static Files Like CSS, JS & Images
-from fastapi.templating import Jinja2Templates  # Imports Jinja2 template support
+from fastapi import APIRouter, Request, Form,  Depends # Imports APIRouter to create a modular group of API Routes, HTTPException for raising HTTP error responses, and Depends for dependency injection tools s
+from fastapi.responses import HTMLResponse, RedirectResponse # Imports response classes to return rendered HTML pages &  to redirect client to another URL after a POST 
+from fastapi.templating import Jinja2Templates # Imports Jinja2Templates to enable server-side rendering of HTML templates with variables.
+from sqlalchemy.orm import Session # Imports SQLAlchemy ORM database Session class for querying data
 
-# Utilities & Database Connection Classes
-from dotenv import load_dotenv # Loads secrets from .env.
-from pathlib import Path # Provides object-oriented file system paths
-from utilities.utils import AppUtils # Imports the data processing functions
-from database.data import SessionLocal, Base, engine, Co2 # Imports SQLAlchemy engine connected to the database, dependency function to provide DB Session and declarative Base for models to create tables
-from crud.local_operations import LocalCRUD
-from crud.mongo_operations import MongoCRUD
-from crud.sql_operations import SQLCRUD
+# Internal Modules
+from schemas.schemas import co2_createitem, user  # Imports request and response schemas respectively
+from crud.operations import CRUD # Imports CRUD operations for database interaction
+from database.database import get_db, engine, Base # Imports SQLAlchemy engine connected to the database, dependency function to provide DB Session and declarative Base for models to create tables
 
-# Creates tables using SQLAlchemy
-Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine) # Creates all database tables based on the models if not yet existent
+router = APIRouter() #  Creates a router instance to group related routes
+crud = CRUD() # Initializes CRUD class instance to perorm DB Operations
+templates = Jinja2Templates(directory="templates") # Initializes templates
 
-# Loads enviroment variables from .env file to retrieve sensitive data securely
-load_dotenv() # Loads secrets
+# FORM PAGE ROUTES
+# Form Handling Route (Registration & Login)
+@router.get("/admin", response_class=HTMLResponse)
+def root(request: Request, error: str = None,):
 
-# Initializes FastAPI Web Application
-router = APIRouter()
-templates = Jinja2Templates(directory=Path(__file__).parent.parent/"templates")  # Sets up Jinja2Templates for dynamic HTML rendering from templates folder
+    # Initializes variable to store alert message
+    alert = None
 
-# Mongo DB Initialization
-mongo_client = Co2()
-
-# Initializes CRUD instances
-local = LocalCRUD()
-sql = SQLCRUD()
-mongo = MongoCRUD(co2=mongo_client.co2, sos=mongo_client.sos, logs=mongo_client.logs)
-
-# Loads items from the SQL Database
-with SessionLocal() as db:
-    items = sql.fetch_items_from_sql(db)
-
-# Groups the items 
-grouped_items = mongo.group_data_by_category(items)
-
-# Inserts Items into Mongo DB co2 Database if documents empty
-if mongo.co2.count_documents({}) == 0:
-    mongo.send_to_mongo(grouped_items)
-
-items = grouped_items
-
-# DEMO PAGE ROUTES
-# Route for the demopage ('/') that returns an HTML response displaying items
-@router.get("/", response_class=HTMLResponse)
-def demo(request: Request):
-
-    # Calculates the total CO2 emission based on item's counts and CO2 per item
-    total_co2 = sum(
-        (item.get('co2', 0))
-        for category in items
-        for item in category['items'])
-    
-    equivalents = AppUtils.calculate_equivalents(total_co2)  # Calculates how mmuch C02 is equivalent to driving a car, riding a bus or flying in a plane using the AppUtils calculate session function
+    # Checks if an error code was passed and returns an alert message
+    if error == "missing_name":
+        alert = "Name is required for registration."
+    elif error == "user_not_found":
+        alert = "User not found or not approved."
+    elif error == "missing_password":
+        alert = "Password is required for login."
+    elif error == "incorrect_password":
+        alert = "Incorrect password."
+    elif error == "invalid_action":
+        alert = "Invalid action."
+    elif error == "short_name":
+        alert = "Name must be at least 4 characters."
+    elif error == "user_exists":
+        alert = "User Account already exists."
 
     context = {
         "request": request, # Passes the request for Jinja2 to access
-        "items": items,  # Passes items data to be rendered
-        "equivalents": equivalents, # C02 equivalent in different modes of transport
-        "total_co2": total_co2, # Total C02 emitted based on selected items
+        "alert": alert # Adds alert to context so it's accessible in the HTML template
     }
-    # Renders the response
-    response = templates.TemplateResponse("demo.html", context)
-    return response 
+    return templates.TemplateResponse("admin.html", context)  # Renders the 'index.html' template with data from the context dictionary
 
-# Route to handle form submissions of incrementing & decrementing counts on demo page
-@router.post("/", response_class=HTMLResponse)
-def update_count(request: Request, action: str = Form(...), item_name: str = Form(...)): # request:Request accesses headers & cookies while the Form(...) tells FastAPI value must come from a form field
-    local.update_item_count(items, item_name, action)
-    return RedirectResponse(url="/", status_code=303) # Redirects back to homepage after form submission to display updated data & to prevent resubmission on refresh
 
-# Route to reset all items locally
-@router.post("/reset", response_class=HTMLResponse)
-def renew(request: Request):
-    local.reset_items(items)
-    return RedirectResponse(url="/", status_code=303) # Redirects back to demo page
-
-# MAIN PAGE ROUTES 
-# Route for the homepage ('/main') that returns an HTML response displaying items
-@router.get("/main", response_class=HTMLResponse)
-def main(request: Request):
-
-    global total_co2
-
-    # Calculates the total CO2 emission based on item's counts and CO2 per item
-    total_co2 = sum(
-        (item.get('co2', 0))
-        for category in items
-        for item in category['items'])
+# Registration Route
+@router.post("/admin/register", response_class=HTMLResponse)
+def registration_route(
+    request: Request,
+    name: str = Form(...),
+    email: str = Form(...),
+    db: Session = Depends(get_db),
+    ):
     
-    equivalents = AppUtils.calculate_equivalents(total_co2)  # Calculates how mmuch C02 is equivalent to driving a car, riding a bus or flying in a plane using the AppUtils calculate session function
-    totals, session_count = AppUtils.calculate_total(mongo.get_all_sessions()) # Gets All Sessions Function loops through all stored sessions in the Database, then passes them to AppUtils, calculates total function to calculate cumulative totals and number of sessions
-    updated_items = mongo.get_updated_items() # Fetches the latest items data from the MongoDB database
-    rearranged_items = AppUtils.rearrange_updated_items(updated_items)  # Single Lists MongoDB items
-    sorted_items = AppUtils.sort_updated_items(rearranged_items) # Sorts items by 'count' in descending order with most used items coming first
+    # Validates Input fields
+    if not name:
+            return RedirectResponse(url="/UI/admin?error=missing_name", status_code=303) # Redirects with error code in URL, if name is missing 
+    
+    if len(name) < 4:
+        return RedirectResponse(url="/UI/admin?error=short_name", status_code=303)
 
-    context = {
-        "request": request, # Passes the request for Jinja2 to access
-        "items": items,  # Passes items data to be rendered
-        "equivalents": equivalents, # C02 equivalent in different modes of transport
-        "total_co2": total_co2, # Total C02 emitted based on selected items
-        "totals": totals, # Cumulative totals of all sessions
-        "session_count": session_count,  # Number of sessions stored
-        "sorted_items": sorted_items, # Sorted list of updated items for display
-    }
-    # Renders the response
-    return templates.TemplateResponse("main.html", context)
-
-# Route to handle form submissions of incrementing & decrementing counts
-@router.post("/main", response_class=HTMLResponse)
-def update_count(request: Request, action: str = Form(...), item_name: str = Form(...)): # request:Request accesses headers & cookies while the Form(...) tells FastAPI value must come from a form field
-    local.update_item_count(items, item_name, action)
-    return RedirectResponse(url="main", status_code=303)  # Redirects back to homepage after form submission to display updated data & to prevent resubission on refresh
-
-# Route to save items data to database and reset all items locally
-@router.post("/main/reset", response_class=HTMLResponse)
-def renew(request: Request):
-    # Saves all items data from session to database before resetting
+    existing_user = crud.get_user_by_email(db, email=email)  # Checks if user already exists
+    if existing_user:
+         return RedirectResponse(url="/UI/admin?error=user_exists", status_code=303)
+    
+    # Creates & registers new user
     try:
-        exc_items = {} 
-
-        # Update items and collects exchanged items
-        for category in items:
-            for item in category['items']:
-                if item.get('count', 0) > 0 or item.get('co2', 0) > 0: # Tries to get 'CO2', if it doesn't exist, it returns 0 instead , to prevent crashes
-                    mongo.update_item(category["category"], item["name"], item['count'], item['co2']) # Updates items count and CO2 by category using the MongoCO2 class defined function
-                    
-                    # Ensures a list exists for each category
-                    if category['category'] not in exc_items:
-                        exc_items[category["category"]] = []
-                    
-                    exc_items[category["category"]].append({
-                        "name": item["name"],
-                        "count": item["count"],
-                        "co2": item["co2"]
-                    })
-
-        # Inserts session data if any CO2 was saved
-        if total_co2 > 0:
-            equivalents = AppUtils.calculate_equivalents(total_co2)  # Calculates how much C02 is equivalent to driving a car, riding a bus or flying in a plane using the AppUtils calculate session function
-            mongo.insert_session(total_co2, equivalents, exc_items) # Inserts exchanged items and sessions for a participant
-
-        # Resets locally displayed items
-        local.reset_items(items)
+        new_user = user(name=name, email=email)
+        crud.register_user(db, new_user)
 
     except Exception as e:
-        print(f"Error in /reset: {e}")
-        raise e
+        return RedirectResponse(url="/UI/admin?error=server_error", status_code=303)  # Handle unexpected database errors
+
+    return templates.TemplateResponse("admin.html", {"request": request, "success": "registered"})
+
+# Login Route
+@router.post("/admin/login", response_class=HTMLResponse)
+def login_route(
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db),
+    ):
     
-    return RedirectResponse(url="/UI/main", status_code=303) # Redirects back to mainpage
+    # Checks if email and password are provided
+    if not email:
+        return RedirectResponse(url="/UI/admin?error=missing_email", status_code=303)
 
+    if not password:
+        return RedirectResponse(url="/UI/admin?error=missing_password", status_code=303)
 
-# Route to save events data to database and reset all items locally
-@router.post("/main/logout", response_class=HTMLResponse)
-def logout(request: Request):
+    # Checks if user exists and is verified
+    user = crud.get_user_by_email(db, email)
+    if not user or not user.is_verified:
+        return RedirectResponse(url="/UI/admin?error=user_not_found", status_code=303)
 
-    # Checks if there were actual calculations during sessions
-    totals, session_count = AppUtils.calculate_total(mongo.get_all_sessions()) # Gets All Sessions Function loops through all stored sessions in the Database, then passes them to AppUtils, calculates total function to calculate cumulative totals and number of sessions
+    # Confirms password is correct
+    if not crud.confirm_password(db, email=email, password=password):
+        return RedirectResponse(url="/UI/admin?error=incorrect_password", status_code=303)
 
-    # If data was exchanged during the event, then its collected and saved into the logs event collection
-    if session_count > 0:
-        updated_items = mongo.get_updated_items() # Fetches the latest items data from the MongoDB database
-        rearranged_items = AppUtils.rearrange_updated_items(updated_items)  # Single Lists MongoDB items
-        sorted_items = AppUtils.sort_updated_items(rearranged_items) # Sorts items by 'count' in descending order with most used items coming first
-        mongo.log_out(sessions=session_count, sorted_items=sorted_items, total=totals)
-        mongo.reset_counts(items) # Resets items database count 
-        mongo.clear_sessions() # Deletes all documents inside the sessions collection
+    # Login successful
+    return RedirectResponse(url="/UI", status_code=303)
 
-    # Prepares redirect response 
-    return RedirectResponse(url="/UI", status_code=303) 
+# GET route for admin URL "/admin" returning an HTML page
+@router.get("/", response_class=HTMLResponse)
+def admin_page(request: Request, db: Session = Depends(get_db), msg: str = ""): # Injects DB Session dependency plus message to display back to user as a string
+   items = crud.get_all_items(db) # Fetches all items from the database using the CRUD class.
+   users = crud.get_all_users(db) # Fetches all users from the database using the CRUD class.
 
+   # Renders to the template
+   return templates.TemplateResponse("index.html",
+                                     {"request": request, 
+                                        "items": items,
+                                        "msg": msg, 
+                                        "users":users
+                                        })
+
+# GET route at "/search" to handle item lookup by name.
+@router.get("/search", response_class=HTMLResponse)
+def search_item(request: Request, name: str, db: Session = Depends(get_db)):
+    item = crud.get_itemby_name(db, name)  # Searches for the item in the database by name.
     
-# SECURE ROUTES
-# Route to reset item counts in database to zero
-@router.get("/main/reset_DBS", response_class=HTMLResponse)
-def reset_count(request: Request):
-    mongo.reset_counts(items)
-    return RedirectResponse(url="/UI/main", status_code=303) # Redirects back to homepage after resetting counts
+    # Renders the main template with item and a success message, if item is found
+    if item:
+        return templates.TemplateResponse("index.html", {"request": request,"items": [item],"msg": "found"})
+    
+    # Redirects back to the main page with a "notfound" message, if item is not found
+    return RedirectResponse("/UI?msg=notfound", status_code=303)
 
-# Route to clear all exchange sessions from the database
-@router.get("/main/clear_SOS", response_class=HTMLResponse)
-def clear_sessions(request: Request):
-    mongo.clear_sessions() # Deletes all documents inside the sessions collection
-    return RedirectResponse(url="/UI/main", status_code=303) # Redirects back to homepage after clearing sessions
+# POST route at "/admin/verify" to handle form submissions to create new users.
+@router.post("/verify")  # Accepts form data for email for verification
+def verify_user(email: str = Form(...), db: Session = Depends(get_db)):  
+    verification = crud.verify_user(db, email)
+    
+    if not verification:  # Checks if a user with name already exists in the database.
+        return RedirectResponse("/UI?msg=exists", status_code=303)  # Redirects back to home page without creating duplicate, if it exists
+    
+    return RedirectResponse("/UI?msg=created", status_code=303) # Redirects back to home page after successful creation
+
+# POST route at "/admin/delete" to delete verified user
+@router.post("/delete_user")  # Accepts form data for email for verification
+def delete_user(email: str = Form(...),db: Session = Depends(get_db)):  
+    deletion = crud.delete_user(db, email)
+    
+    if not deletion:  # Checks if user was deleted
+        return RedirectResponse("/UI?msg=notfound", status_code=303)  # Redirects back to home page without deleting
+    
+    return RedirectResponse("/UI?msg=deleted", status_code=303) # Redirects back to home page after successful deletion
+
+# POST route at "/create" to handle form submissions to create new items.
+@router.post("/create")  # Accepts form data for either category or name or base_co2 or all and DB session.
+def create_item(
+    category: str = Form(...),
+    name: str = Form(...),  
+    base_co2: float = Form(...),
+    db: Session = Depends(get_db)):  
+    
+    if crud.get_itemby_name(db, name):  # Checks if an item with this name already exists in the database.
+        return RedirectResponse("/UI?msg=exists", status_code=303)  # Redirects back to home page without creating duplicate, if it exists
+    
+    crud.create_item(db, co2_createitem(category=category, name=name, base_co2=base_co2)) #  Or Else creates the new item by wrapping the data in the Pydantic schema.
+    return RedirectResponse("/UI?msg=created", status_code=303) # Redirects back to home page after successful creation
+
+# POST route at "/update" for updating existing items from form data.
+@router.post("/update") 
+def update_item(  # Accepts form data for either category or name or base_co2 or all and DB session.
+    original_name: str = Form(...),
+    category: str = Form(...),
+    name: str = Form(...),  
+    base_co2: float = Form(...),
+    db: Session = Depends(get_db)):
+
+    # Checks if the item to update exists
+    if not crud.get_itemby_name(db, original_name):
+        return RedirectResponse("/UI?msg=notfound", status_code=303)
+
+    crud.update_item(db, original_name, co2_createitem(name=name, category=category, base_co2=base_co2))  # Performs the update operation using the original name
+    return RedirectResponse("/UI?msg=updated", status_code=303)  # Redirects back to home page after update.
+
+# POST route at "/delete" for deleting an item specified by name.
+@router.post("/delete")
+def delete_item(name: str = Form(...), db: Session = Depends(get_db)): # Accepts the name of the item to delete and DB session.
+    # Checks if the item to delete exists
+    if not crud.get_itemby_name(db, name):
+        return RedirectResponse("/UI?msg=notfound", status_code=303)
+    
+    crud.delete_item(db, name)  # Performs the deletion from the database.
+    return RedirectResponse("/UI?msg=deleted", status_code=303)  # Redirects back to home page after deletion.
