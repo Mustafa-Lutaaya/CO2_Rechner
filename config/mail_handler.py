@@ -8,9 +8,12 @@ from dotenv import load_dotenv # Loads secrets from .env.
 load_dotenv() # Loads Environment Variables from .env File
 
 # Email Credentials
+
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
+
+base_url = "https://co2-rechner.onrender.com"
 
 class EmailHandler:
     @staticmethod
@@ -21,8 +24,8 @@ class EmailHandler:
         reject_token = JWTHandler.create_token(email=email, action="reject", name=name)
 
         # Constructs approval / rejection links
-        approval_url = f"http://127.0.0.1:5050/email/approve_user?token={approve_token}"
-        rejection_url = f"http://127.0.0.1:5050/email/reject_user?token={reject_token}"
+        approval_url = f"{base_url}/email/approve_user?token={approve_token}"
+        rejection_url = f"{base_url}/email/reject_user?token={reject_token}"
 
         # HTML Content 4 The Email
         html_content = f"""
@@ -72,7 +75,7 @@ class EmailHandler:
         <li>Code: {password}</li>
         </ul>
         <p>
-        <a href="http://127.0.0.1:5050/UI/admin" style="padding:10px;background-color:blue;color:white;text-decoration:none;">
+        <a href="https://co2-rechner.onrender.com/" style="padding:10px;background-color:blue;color:white;text-decoration:none;">
         Login Now</a>
         </p>
         </body>
