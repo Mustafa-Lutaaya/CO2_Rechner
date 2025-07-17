@@ -24,12 +24,13 @@ app.include_router(email_router, prefix="/email", tags=["Email"])# Adds the Emai
 
 @app.get("/", response_class=HTMLResponse)
 def main_page(request: Request):
-    return templates.TemplateResponse(request, "main.html") 
+    return templates.TemplateResponse(request, "admin.html")  
 
 # Domains allowed to make requests to the backend
 origins = [
     "http://localhost:5000",   # Local dev server
     "http://127.0.0.1:5000",
+    "https://co2-spar-rechner.onrender.com"
 ]
 
 #CORS middleware
