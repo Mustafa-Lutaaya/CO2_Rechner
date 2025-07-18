@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL") # Initializes & Fetches Database URL
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is not set!")
 
-engine = create_engine(DATABASE_URL) # Creates database engine using SQLite
+engine = create_engine(DATABASE_URL, echo=True, future=True) # Creates database engine using SQLite
 SessionLocal = sessionmaker(bind=engine, autoflush=False) # Creates a class called SessionLocal that creates database sessions like add(), delete() etc. autoflush ensures changes wont be automatically flushed to the DB until committed
 Base = declarative_base() # Base class for ORM model classes from which ever model will inherit from
 
