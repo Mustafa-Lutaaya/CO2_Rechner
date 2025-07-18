@@ -48,6 +48,9 @@ class CRUD:
     def register_user(self, db: Session, user: user):
         new_user = USER(**user.model_dump()) # Creates new instance of PENUser ORM Model. **user.model_dump() converts the Pydantic model into a dictionary of field names and values as ** operator unpacks them as arguments to the PENUser constructor
         EmailHandler.send_to_admin(new_user.name, new_user.email) # Sends email to admin for verification
+        print("Preparing to send email to admin")
+        print(f"Sending email to {to_email}")
+
         db.add(new_user) # Adds new user object to the currrent database session
         db.commit() # Commits the session to save the new user permanently to the database
         db.refresh(new_user) # Refreshes the new_user object to get any updates made by the database like adding the auto generated id
