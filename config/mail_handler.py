@@ -13,7 +13,7 @@ SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 
-base_url = "https://co2-rechner.onrender.com"
+base_url = os.getenv("base_url","http://127.0.0.1:5050")
 
 class EmailHandler:
     @staticmethod
