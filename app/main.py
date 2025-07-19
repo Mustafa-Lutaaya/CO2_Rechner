@@ -36,7 +36,7 @@ def root_redirect(request: Request):
     if "localhost" in host:
         base_url = "http://localhost:5050"
     else:
-        base_url = "https://co2--rechner.onrender.com"
+        base_url = "https://co2-rechner.onrender.com"
 
     return RedirectResponse(url=f"{base_url}/UI/admin")  
 
