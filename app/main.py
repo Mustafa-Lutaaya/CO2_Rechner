@@ -7,6 +7,8 @@ from routes.email_routes import router as email_router  # Imports Email router i
 from fastapi.templating import Jinja2Templates  # Imports Jinja2 template support
 from pathlib import Path # Provides object-oriented file system paths
 from fastapi.middleware.cors import CORSMiddleware # Imports CORS to enable communication beteween frontend and backend
+import os
+
 
 app = FastAPI(
     title="CO2 Spar Rechner",
@@ -21,10 +23,19 @@ app.include_router(api_router, prefix="/api", tags=["API"]) # Adds the API route
 app.include_router(ui_router, prefix="/UI", tags=["UI"])# Adds the User Interaction router to the main app, prefixing all its routes with "/UI" meaning every path inside the UI_router will be available under "/UI". The tags parameter groups the routes under an UI tag in Swagger UI
 app.include_router(email_router, prefix="/email", tags=["Email"])# Adds the Email router to the main app, prefixing all its routes with "/email" meaning every path inside the email_router will be available under "/email". The tags parameter groups the routes under an Email tag in Swagger UI
 
+ENV = os.getenv("ENV", "dev")
+if ENV not in ["dev", "prod"]:
+    raise ValueError("Invalid ENV setting. Must be 'dev' or 'prod'.")
 
 @app.get("/", response_class=HTMLResponse)
 def main_page(request: Request):
-    return templates.TemplateResponse(request, "admin.html")  
+    # Detect if request is coming from localhost or deployed domain
+    if ENV == "dev":
+        base_url = "http://localhost:5050"
+    else:
+        base_url = "https://co2-rechner.onrender.com"
+
+    return templates.TemplateResponse("admin.html", {"request": request, "base_url": base_url})  
 
 # Domains allowed to make requests to the backend
 origins = [
