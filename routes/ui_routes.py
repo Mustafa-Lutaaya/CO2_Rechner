@@ -158,7 +158,8 @@ def admin_page(request: Request, db: Session = Depends(get_db), msg: str = ""): 
                                      {"request": request, 
                                         "items": items,
                                         "msg": msg, 
-                                        "users":users
+                                        "users":users,
+                                        "env": ENV, 
                                         })
 
 # GET route at "/search" to handle item lookup by name.

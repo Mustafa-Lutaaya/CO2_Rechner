@@ -29,7 +29,6 @@ print(f"Current ENV: {ENV}")
 if ENV not in ["dev", "prod"]:
     raise ValueError("Invalid ENV setting. Must be 'dev' or 'prod'.")
 
-
 @app.get("/", response_class=RedirectResponse)
 def root_redirect():
     if ENV == "prod":
