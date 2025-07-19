@@ -87,6 +87,7 @@
         <button type="button" class="btn btn-outline-success btn-sm text-black" data-bs-toggle="modal" data-bs-target="#sparModal">Spar-Rechner</button>
     </div>
 
+
     <!-- Exit Confirmation Modal -->
     <div class="modal fade" id="sparModal" tabindex="-1" aria-labelledby="sparModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-sm-down">
@@ -100,9 +101,15 @@
           <!-- Modal Footer -->
           <div class="modal-footer bg-white">
             <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
-            <a href="{{ base_url }}" class="btn btn-outline-success btn-md">
+             {% if 'localhost' in request.headers.get('host', '') %}
+            <a href="http://localhost:5000/UI/main" class="btn btn-outline-success btn-md">
                 Yes, Proceed.
             </a>
+            {% else %}
+            <a href="https://co2-spar-rechner.onrender.com/UI/main" class="btn btn-outline-success btn-md">
+                Yes, Proceed.
+            </a>
+            {% endif %}
           </div>
 
         </div>

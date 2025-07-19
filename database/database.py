@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine # create_engine function creates the connection to interact with the database
+from sqlalchemy import create_engine, text # create_engine function creates the connection to interact with the database
 from sqlalchemy.orm import sessionmaker, declarative_base # sessionmaker creates session objects which we use to interact with the database such as add, query, update, delete whilce declarative_base allows class definitions that map to databse tables
 from dotenv import load_dotenv # Loads secrets from .env.
 import os # Accesses the environment variables..
@@ -12,12 +12,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Tracks Postgres online & offline status
 is_postgres_online = False
+engine = None
 
 # Tries to connect to the cloud first
 try:
     engine = create_engine(DATABASE_URL, echo=True, future=True)
     with engine.connect() as conn:
-        conn.execute("SELECT 1") # Tests if database works before it connects to it
+        conn.execute(text("SELECT 1")) # Tests if database works before it connects to it
     print("Connected to Supabase")
     is_postgres_online = True
 
@@ -27,7 +28,7 @@ except Exception as e:
     try:
         engine = create_engine(LOCAL_DB_URL, echo=True, future=True)
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
         print("Supabase unavailable. Using local Postgres.")
         is_postgres_online = False
 

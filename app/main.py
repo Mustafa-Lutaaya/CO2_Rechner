@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request  # Imports FastAPI class to create the main app instance
 from fastapi.staticfiles import StaticFiles # Serves Static Files Like CSS, JS & Images
-from fastapi.responses import HTMLResponse  # For returning HTML content in the welcome route
+from fastapi.responses import HTMLResponse, RedirectResponse  # For returning HTML content in the welcome route
 from routes.api_routes import router as api_router  # Imports API router instance from the api_routes module and rename it as api_router
 from routes.ui_routes import router as ui_router  # Imports UI router instance from the ui_routes module and rename it as ui_router
 from routes.email_routes import router as email_router  # Imports Email router instance from the email_routes module and rename it as email_router
@@ -24,18 +24,19 @@ app.include_router(ui_router, prefix="/UI", tags=["UI"])# Adds the User Interact
 app.include_router(email_router, prefix="/email", tags=["Email"])# Adds the Email router to the main app, prefixing all its routes with "/email" meaning every path inside the email_router will be available under "/email". The tags parameter groups the routes under an Email tag in Swagger UI
 
 ENV = os.getenv("ENV", "dev")
+print(f"Current ENV: {ENV}")
+
 if ENV not in ["dev", "prod"]:
     raise ValueError("Invalid ENV setting. Must be 'dev' or 'prod'.")
 
-@app.get("/", response_class=HTMLResponse)
-def main_page(request: Request):
-    # Detect if request is coming from localhost or deployed domain
+@app.get("/", response_class=RedirectResponse)
+def root_redirect():
     if ENV == "dev":
         base_url = "http://localhost:5050"
     else:
-        base_url = "https://co2-rechner.onrender.com"
+        base_url = "https://co2--rechner.onrender.com"
 
-    return templates.TemplateResponse("admin.html", {"request": request, "base_url": base_url})  
+    return RedirectResponse(url=f"{base_url}/UI/admin")  
 
 # Domains allowed to make requests to the backend
 origins = [
