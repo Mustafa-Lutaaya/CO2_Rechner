@@ -8,11 +8,14 @@ from sqlalchemy.orm import Session # Imports SQLAlchemy ORM database Session cla
 from schemas.schemas import co2_createitem, user  # Imports request and response schemas respectively
 from crud.operations import CRUD # Imports CRUD operations for database interaction
 from database.database import get_db, engine, Base # Imports SQLAlchemy engine connected to the database, dependency function to provide DB Session and declarative Base for models to create tables
+import os
 
 Base.metadata.create_all(bind=engine) # Creates all database tables based on the models if not yet existent
 router = APIRouter() #  Creates a router instance to group related routes
 crud = CRUD() # Initializes CRUD class instance to perorm DB Operations
 templates = Jinja2Templates(directory="templates") # Initializes templates
+
+ENV = os.getenv("ENV", "dev")
 
 # FORM PAGE ROUTES
 # Form Handling Route (Registration & Login)
@@ -41,6 +44,7 @@ def root(request: Request, error: str = None,):
         alert = "Password successfully updated. Please log in."
 
     context = {
+        "env": ENV,
         "request": request, # Passes the request for Jinja2 to access
         "alert": alert # Adds alert to context so it's accessible in the HTML template
     }

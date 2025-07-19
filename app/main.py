@@ -29,16 +29,14 @@ print(f"Current ENV: {ENV}")
 if ENV not in ["dev", "prod"]:
     raise ValueError("Invalid ENV setting. Must be 'dev' or 'prod'.")
 
+
 @app.get("/", response_class=RedirectResponse)
-def root_redirect(request: Request):
-    host = request.headers.get("host", "")
-
-    if "localhost" in host:
-        base_url = "http://localhost:5050"
+def root_redirect():
+    if ENV == "prod":
+        return RedirectResponse(url="https://co2-rechner.onrender.com/UI/admin")
     else:
-        base_url = "https://co2-rechner.onrender.com"
+        return RedirectResponse(url="http://localhost:5050/UI/admin")
 
-    return RedirectResponse(url=f"{base_url}/UI/admin")  
 
 # Domains allowed to make requests to the backend
 origins = [
