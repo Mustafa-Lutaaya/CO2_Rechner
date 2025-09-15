@@ -22,8 +22,18 @@
 
 </head>
 
+<style>
+body {
+    background-image: url(/static/BG7.jpeg);
+    background-size: cover;        
+    background-repeat: no-repeat;   
+    background-position: center;      
+    background-attachment: fixed;    
+}
+</style>
+
 <body>
-   <!-- Alert Placement -->
+<!-- Alert Placement -->
     <div class="container mt-3">
       {% if alert %}
       <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
@@ -33,11 +43,20 @@
       {% endif %}
     </div>
 
+    <div class="container mt-3">
+    {% if success %}
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        {{ success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div> 
+    {% endif %}
+    </div>
+
     <!-- Logo Placement -->
-    <div class="container mt-5 text-center text-danger">
+    <div class="container mt-3 text-center text-danger">
         <div class="row align-items-center">
             <div class="col">
-                <img id="logo" class="logo" src="/static/logo1.png" alt="WLogo">
+                <img id="logo" class="logo" src="/static/logo2-bg.png" width="500">
             </div>
         </div>
     </div>
@@ -46,19 +65,19 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <h4 class="text-center"><strong>youngcaritas x Kleidertausch CO₂-Rechner</strong></h4>
+                <h4 class="text-center text-white"><strong>youngcaritas x Kleidertausch CO₂-Rechner</strong></h4>
                 <br/>
                 <!-- Input for Login-->
-                    <form action="/UI/admin/login" method="post"> 
+                    <form action="/admin/login" method="post"> 
                         <!-- Email Field -->
                         <div class="mb-2 ">
-                            <label for="email" class="form-label mb-1"><h5 class="mb-1">Email Address: </h5></label>
+                            <label for="email" class="form-label mb-1"><h5 class="mb-1 text-white" >Email Address: </h5></label>
                             <input type="email" name="email" class="form-control form-control-sm" placeholder="Input Email Address" required>
                         </div>
 
                         <!-- Password Field -->
                         <div class="mb-3">
-                            <label for="password" class="form-label mb-1"><h5 class="mb-1">Password: </h5></label>
+                            <label for="password" class="form-label mb-1"><h5 class="mb-1 text-white">Password: </h5></label>
                             <div class="input-group">
                               <input type="password" id="password" name="password" class="form-control form-control-sm" placeholder="Input Password" required>
                               <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
@@ -69,12 +88,12 @@
 
                     <!-- Submit Button -->
                     <div class="d-grid">
-                        <button type="submit" name="action" value="login" class="btn btn-outline-danger btn-sm">Login</button>
+                        <button type="submit" name="action" value="login" class="btn btn-outline-primary btn-sm">Login</button>
                     </div>
                     </form>
                     <!-- To Registration Modal -->
                     <div class="d-grid mt-2">
-                        <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#myModal" >Register</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#myModal" >Register</button>
                     </div>
             </div>
         </div>
@@ -93,13 +112,19 @@
 
       <!-- Modal Body -->
       <div class=" container text-black modal-body">
-        <form action="/UI/admin/register" method="post">
+        <form action="/admin/register" method="post">
 
+          <!-- First Name Field -->
           <div class="mb-3">
-            <label for="name" class="form-label">Name:</label>
-            <input type="text" class="form-control" id="name" placeholder="Enter Your Name" name="name" required>
+              <label for="first_name" class="form-label">First Name:</label>
+              <input type="text" class="form-control" id="first_name" placeholder="Enter Your First Name" name="first_name" required>
           </div>
 
+          <!-- Last Name Field -->
+          <div class="mb-3">
+              <label for="last_name" class="form-label"> Last Name:</label>
+              <input type="text" class="form-control" id="last_name" placeholder="Enter Your Last Name" name="last_name" required>
+          </div>
 
           <div class="mb-3">
             <label for="email" class="form-label">Email:</label>

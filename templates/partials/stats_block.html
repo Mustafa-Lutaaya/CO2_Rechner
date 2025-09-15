@@ -1,0 +1,49 @@
+<div id="stats-block" 
+hx-get="/UI/main/hx-stats"
+hx-trigger="refreshStats from:body"
+hx-swap="outerHTML"
+class="mt-1 text-center text-success">
+<br/>
+<h5><strong>Du hast gespart: </strong></h5>
+<h6><strong>{{ total_co2 }} kg CO₂</strong></h6>
+<h6><strong>Das ist so viel wie: </strong></h6>
+
+
+<!-- Mean 1 -->
+<div class="d-flex align-items-center">
+    <button class="btn btn-outline-white btn-md">🍀</button>
+    <div class="flex-grow-1 text-center" style="white-space: nowrap;">
+        <h6>{{ equivalents.wieauto }} km mit dem Auto</h6>
+    </div>
+    <button class="btn btn-outline-white btn-md">🍀</button>
+</div>
+
+<!-- Mean 2 -->
+<div class="d-flex align-items-center">
+    <button class="btn btn-outline-white btn-md">🍀</button>
+    <div class="flex-grow-1 text-center" style="white-space: nowrap;">
+        <h6>{{ equivalents.wieflugzeug }} km mit dem Flugzeug</h6>
+    </div>
+    <button class="btn btn-outline-white btn-md">🍀</button>
+</div>
+
+<!-- Mean 3 -->
+<div class="d-flex align-items-center">
+    <button class="btn btn-outline-white btn-md">🍀</button>
+    <div class="flex-grow-1 text-center" style="white-space: nowrap;">
+        <h6>{{ equivalents.wiebus }} km mit dem Bus</h6>
+    </div>
+    <button class="btn btn-outline-white btn-md">🍀</button>
+</div>
+
+<!-- Mean 4 -->
+<div class="d-flex align-items-center mb-5">
+<div class="flex-grow-1 text-center " style="white-space: nowrap;">
+    <form action="/UI/main/reset" method="post" class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-outline-success btn-sm">Sparen</button>
+    </form>
+</div>
+</div>   
+
+</div>
+</div>

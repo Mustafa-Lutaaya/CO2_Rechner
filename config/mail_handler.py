@@ -17,11 +17,11 @@ base_url = os.getenv("base_url","http://127.0.0.1:5050")
 
 class EmailHandler:
     @staticmethod
-    def send_to_admin(name: str, email: str):  # Sends an email to the admin with JWT secure encoded links to approve or reject the user registration.
+    def send_to_admin(first_name: str, last_name, email: str):  # Sends an email to the admin with JWT secure encoded links to approve or reject the user registration.
 
         # Generates JWT Tokens for approval or rejection actions
-        approve_token = JWTHandler.create_token(email=email, action="approve", name=name)
-        reject_token = JWTHandler.create_token(email=email, action="reject", name=name)
+        approve_token = JWTHandler.create_token(email=email, action="approve", first_name=first_name, last_name=last_name)
+        reject_token = JWTHandler.create_token(email=email, action="reject", first_name=first_name, last_name=last_name)
 
         # Constructs approval / rejection links
         approval_url = f"{base_url}/email/approve_user?token={approve_token}"
@@ -32,7 +32,7 @@ class EmailHandler:
         <html>
         <body>
         <h2>New User Registration</h2>
-        <h4>Name: {name}</h4> 
+        <h4>Name: {first_name}</h4> 
         <h4>Email: {email}</h4> 
 
         <h4>Please Choose an action:</h4>

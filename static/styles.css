@@ -10,3 +10,40 @@ body{
     max-width: 280px;
     border-radius: 10%;
 }
+
+
+@media (max-width: 576px) {
+  .logo {
+    width: 120px; /* smaller on phones */
+  }
+}
+
+@media (max-width: 576px) {
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 1500px) {
+  .col-md-3 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 576px) {
+  body, h2, h5, h6, strong {
+    font-size: 0.85rem !important;
+  }
+
+    h2 {
+    font-size: 1.2rem !important;
+  }
+  h5 {
+    font-size: 1rem !important;
+  }
+  h6 {
+    font-size: 0.9rem !important;
+  }
+}

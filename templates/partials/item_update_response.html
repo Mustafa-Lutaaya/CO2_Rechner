@@ -1,0 +1,10 @@
+{% include 'partials/item.html' %}  <!-- Updated item block -->
+
+<!-- Out-of-band updates for stats -->
+<div id="personalization" hx-swap-oob="true">
+    {% include 'partials/personalization.html' %}
+</div>
+
+<div id="global-stats" hx-swap-oob="true">
+    {% include 'partials/global_stats.html' %}
+</div>

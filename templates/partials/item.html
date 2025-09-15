@@ -1,0 +1,18 @@
+<!-- partials/item.html -->
+<form method="post" 
+      hx-post="{{ hx_post_url }}" 
+      hx-target="this" 
+      hx-swap="outerHTML"  
+      class="m-0">
+    <div class="d-flex align-items-center text-success px-1 py-0 rounded shadow-sm mb-1" style="min-width: 50%;">
+        <button type="submit" name="action" value="decrement" class="btn btn-outline-success btn-sm">-</button>
+
+        <div class="flex-grow-1 text-center" style="white-space: nowrap;">
+            <h6><strong>{{ item.name }} : {{ item.co2 }}</strong></h6> 
+        </div>
+
+        <input type="hidden" name="item_name" value="{{ item.name }}">
+
+        <button type="submit" name="action" value="increment" class="btn btn-outline-success btn-sm">+</button>
+    </div>
+</form>

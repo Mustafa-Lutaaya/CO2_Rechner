@@ -17,7 +17,50 @@
     <!-- Site Favicon Displayed In The Browser Tab -->
     <link href="/static/favicon.png" rel="icon">
 </head>
+
 <body>
+    <!-- Alert Map -->
+    {% set alert_map = {
+        "created":    {"class": "success", "text": "Question added successfully!"},
+        "updated":    {"class": "info", "text": "Question updated successfully!"},
+        "deleted":    {"class": "warning", "text": "Question deleted successfully!"},
+        "exists":     {"class": "danger", "text": "Question already exists!"},
+        "notfound":   {"class": "dark", "text": "Question not found."},
+        "user_created":  {"class": "success", "text": "User registered successfully!"},
+        "user_verified": {"class": "success", "text": "User verified successfully!"},
+        "user_rejected": {"class": "danger", "text": "User rejected."},
+        "user_notfound": {"class": "warning", "text": "User not found."},
+        "form_created": {"class": "success", "text": "Form created successfully!"},
+        "form_updated": {"class": "info", "text": "Form updated successfully!"},
+        "form_deleted": {"class": "warning", "text": "Form deleted successfully!"},
+        "form_notfound": {"class": "dark", "text": "Form not found."},
+        "form_error": {"class": "danger", "text": "Error processing form."},
+    } 
+    %}
+
+    <style>
+    body {
+        background-image: url(/static/BG7.jpeg);
+        background-size: cover;        
+        background-repeat: no-repeat;   
+        background-position: center;      
+        background-attachment: fixed;    
+    }
+
+    .main {
+        width: 90%;
+        max-width: 1400px;
+        height: 90vh;
+        margin: 60px auto;             
+        border-radius: 20px;
+        background-color: #222222;
+        overflow-y: auto;               
+        overflow-x: hidden;            
+        opacity: 0.85;                  
+    }
+    </style>
+
+    <main class="main">
     <!-- Bootstrap Alerts -->
      <div class="fixed-top">
         <div class="row justify-content-center align-items-center">
@@ -81,12 +124,364 @@
             {% endif %}
         </div>
      </div>
-
-    <!-- To Spar Rechner -->
+    
     <div class="container mt-3">
-        <button type="button" class="btn btn-outline-success btn-sm text-black" data-bs-toggle="modal" data-bs-target="#sparModal">Spar-Rechner</button>
+        <div class="d-flex justify-content-between">
+
+            <!-- Spar-Rechner-Demo Button  -->
+            <div>
+                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#spardemoModal">
+                    Spar-Rechner-Demo
+                </button>
+            </div>
+
+            <!-- Spar-Rechner Button  -->
+            <div>
+                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#sparModal">
+                    Spar-Rechner
+                </button>
+            </div>
+
+        </div>
     </div>
 
+
+    <!-- Logo Placement -->
+    <div class="container mt-3 text-center text-danger">
+        <div class="row align-items-center">
+            <div class="col">
+                <img id="logo" class="logo" src="/static/logo2-bg.png" alt="Logo" width="1200">
+            </div>
+        </div>
+    </div>
+
+    <!-- Title Placement -->
+    <div class="container mt-5 text-center text-white">
+        <h3><strong>CO₂-Emission Data</strong></h3>
+    </div>
+
+        
+    <div class="container mt-3 justify-content-center">
+    <div class="row g-3 justify-content-center">
+
+        <!-- Categories Widgets -->
+        <div class="col-sm-6 col-md-4 col-lg-2">
+        <div class="card text-center border-danger shadow-sm h-100" role="button"
+            data-bs-toggle="modal" data-bs-target="#categoriesModal">
+            <div class="card-body">
+            <h5 class="card-title text-danger">Categories</h5>
+            <p class="card-text">Add • Edit • Delete</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- Items Widgets -->
+        <div class="col-sm-6 col-md-4 col-lg-2">
+        <div class="card text-center border-danger shadow-sm h-100" role="button"
+            data-bs-toggle="modal" data-bs-target="#itemsModal">
+            <div class="card-body">
+            <h5 class="card-title text-danger">Items</h5>
+            <p class="card-text">• Add Items •</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- Users Widget -->
+        <div class="col-sm-6 col-md-4 col-lg-2">
+        <div class="card text-center border-danger shadow-sm h-100" role="button"
+            data-bs-toggle="modal" data-bs-target="#usersModal">
+            <div class="card-body">
+            <h5 class="card-title text-danger">Users</h5>
+            <p class="card-text">Manage Access.</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- Data Widgets -->
+        <div class="col-sm-6 col-md-4 col-lg-2">
+        <div class="card text-center border-danger shadow-sm h-100" role="button"
+            data-bs-toggle="modal" data-bs-target="#dataModal">
+            <div class="card-body">
+            <h5 class="card-title text-danger">Stats</h5>
+            <p class="card-text">Access Reports.</p>
+            </div>
+        </div>
+        </div>
+
+    </div>
+    </div>
+
+    <!-- Accordion for Items -->
+    <div class="container mt-5 justify-content-center">
+    <h3 class="text-white text-center"><strong>ITEMS</strong></h3>
+
+    <div class="accordion" id="accordionItems">
+        {% for category in categories %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-{{ loop.index }}">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ loop.index }}" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
+                {{ category.name }}
+            </button>
+            </h2>
+
+            <div id="collapse-{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ loop.index }}" data-bs-parent="#accordionItems">
+            <div class="accordion-body">
+
+                <!-- Items table inside each category -->
+                <table class="table table-striped table-bordered">
+                <thead class="table-danger text-center">
+                    <tr>
+                    <th>Name</th>
+                    <th>Base CO₂ (kg)</th>
+                    <th>Modify</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        {% for item in category.items %}
+                        <tr class="text-center">
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.base_co2 }}</td>
+                            <td class="d-flex justify-content-center gap-3">
+                                <!-- Edit Button -->
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#updateModal-{{ category.id }}-{{ item.id }}">
+                                    Edit
+                                </button>
+                                <!-- Delete Button -->
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteModal-{{ category.id }}-{{ item.id }}">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    </div>
+
+
+  <div class="container mt-3">
+    <div class="d-flex justify-content-end">
+      <!-- Logout Button  -->
+      <div>
+          <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#signoutModal">
+              Logout
+          </button>
+      </div>
+    </div>
+  </div>
+ </main>
+
+<!-- Update & Delete Modals for Each Item -->
+{% for category in categories %}
+    {% for item in category.items %}
+    <!-- Update Modal -->
+    <div class="modal fade" id="updateModal-{{ category.id }}-{{ item.id }}" tabindex="-1" aria-labelledby="updateModalLabel-{{ category.id }}-{{ item.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/api/update" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateModalLabel-{{ category.id }}-{{ item.id }}">Update: {{ item.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" name="original_name" value="{{ item.name }}">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="name" class="form-control" value="{{ item.name }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <input type="text" name="category_name" class="form-control" value="{{ category.name }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Base CO₂</label>
+                            <input type="number" step="any" name="base_co2" class="form-control" value="{{ item.base_co2 }}">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal-{{ category.id }}-{{ item.id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ category.id }}-{{ item.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm-down">
+            <div class="modal-content">
+
+                <div class="modal-header bg-danger text-center">
+                    <h5 class="modal-title text-white" id="deleteModalLabel-{{ category.id }}-{{ item.id }}">Delete {{ item.name }}?</h5>
+                </div>
+
+                <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+                    <form action="/api/delete" method="post">
+                        <input type="hidden" name="name" value="{{ item.name }}" required>
+                        <button type="submit" class="btn btn-outline-danger btn-md">Delete</button>
+                    </form> 
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endfor %}
+
+<!-- Categories Modal -->
+<div class="modal fade" id="categoriesModal" tabindex="-1" aria-labelledby="categoriesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="categoriesModalLabel">Manage Categories</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+
+        <!-- Add New Category -->
+        <form method="post" action="/api/category" class="row g-2 mb-3">
+          <div class="col-md-5">
+            <input type="text" name="name" class="form-control" placeholder="Category Name" required>
+          </div>
+          <div class="col-md-5">
+            <input type="text" name="description" class="form-control" placeholder="Description (optional)">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Add</button>
+          </div>
+        </form>
+
+        <hr>
+
+        <!-- Categories List -->
+        <div class="list-group">
+          {% for category in categories %}
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                  <div class="fw-bold">{{ category.name }}</div>
+                  <small class="text-muted">{{ category.description}}</small>
+                </div>
+                <div class="d-flex gap-2">
+                  <!-- Edit Toggle -->
+                  <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#edit-c-{{ category.id }}">
+                    Edit
+                  </button>
+
+                  <!-- Delete Toggle -->
+                  <button class="btn btn-sm btn-outline-danger" data-bs-toggle="collapse" data-bs-target="#delete-c-{{ category.id }}">
+                    Delete
+                  </button>
+                </div>
+              </div>
+
+              <!-- Collapsible Edit -->
+              <div class="collapse mt-3" id="edit-c-{{ category.id }}">
+                <form method="post" action="/api/update-category" class="row g-2">
+                  <input type="hidden" name="original_name" value="{{ category.name }}">
+                  <div class="col-md-5">
+                    <input type="text" name="name" class="form-control" value="{{ category.name }}" required>
+                  </div>
+                  <div class="col-md-5">
+                    <input type="text" name="description" class="form-control" value="{{ category.description }}">
+                  </div>
+                  <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Save</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Collapsible Delete -->
+              <div class="collapse mt-2" id="delete-c-{{ category.id }}">
+                <div class="alert alert-danger p-2">
+                  <strong>Confirm:</strong> Delete <em>{{ category.name }}</em>?
+                  <form method="post" action="/api/delete-category" class="d-inline">
+                    <input type="hidden" name="name" value="{{ category.name }}">
+                    <button type="submit" class="btn btn-sm btn-danger ms-2">Yes</button>
+                  </form>
+                  <button class="btn btn-sm btn-secondary" data-bs-toggle="collapse" data-bs-target="#delete-c-{{ category.id }}">Cancel</button>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Items Modal -->
+<div class="modal fade" id="itemsModal" tabindex="-1" aria-labelledby="itemsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="itemsModalLabel">Add New Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Single Item Add Form -->
+        <form action="/api/create" method="post" class="row g-2 d-flex justify-content-start gap-3 flex-wrap align-items-end">
+          <div class="col-md-4">
+            <input type="text" name="name" placeholder="Item Name" class="form-control" required>
+          </div>
+
+          <div class="col-md-4">
+            <select name="category_name" class="form-select" required>
+              <option value="" disabled selected>Select Category</option>
+              {% for category in categories %}
+                <option value="{{ category.name }}">{{ category.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <input type="number" name="base_co2" step="any" placeholder="Base CO₂" class="form-control" required>
+          </div>
+
+          <!-- <div class="col-md-2">
+            <input type="number" name="count" placeholder="Count" class="form-control" value="0" required>
+          </div> -->
+
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary mt-2">Add Item</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- Exit Confirmation Modal -->
     <div class="modal fade" id="sparModal" tabindex="-1" aria-labelledby="sparModalLabel" aria-hidden="true">
@@ -102,11 +497,11 @@
           <div class="modal-footer bg-white">
             <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
              {% if env == "dev" %}
-            <a href="http://localhost:5000/UI/main" class="btn btn-outline-success btn-md">
+            <a href="/UI/main" class="btn btn-outline-success btn-md">
                 Yes, Proceed.
             </a>
             {% else %}
-            <a href="https://co2-spar-rechner.onrender.com/UI/main" class="btn btn-outline-success btn-md">
+            <a href="/UI/main" class="btn btn-outline-success btn-md">
                 Yes, Proceed.
             </a>
             {% endif %}
@@ -116,202 +511,59 @@
       </div>
     </div>
 
-    <!-- Logo Placement -->
-    <div class="container mt-5 text-center text-danger">
-        <div class="row align-items-center">
-            <div class="col">
-                <img id="logo" class="logo" src="/static/recolored_logobg.png" alt="Logo" width="300">
-            </div>
+    <!-- Exit Confirmation Modal -->
+    <div class="modal fade" id="spardemoModal" tabindex="-1" aria-labelledby="spardemoModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm-down">
+        <div class="modal-content">
+
+          <!-- Modal Header -->
+          <div class="modal-header bg-success text-center">
+            <h5 class="modal-title text-white" id="sparModalLabel">Proceed to the Spar-Rechner-Demo?</h5>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="modal-footer bg-white">
+            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+             {% if env == "dev" %}
+            <a href="/UI/" class="btn btn-outline-success btn-md">
+                Yes, Proceed.
+            </a>
+            {% else %}
+            <a href="/UI/" class="btn btn-outline-success btn-md">
+                Yes, Proceed.
+            </a>
+            {% endif %}
+          </div>
+
         </div>
+      </div>
     </div>
 
-    <!-- Title Placement -->
-    <div class="container mt-3 text-center text-success">
-        <h3><strong>CO₂-Emission Data</strong></h3>
-    </div>
+  
+    <!-- Exit Confirmation Modal -->
+    <div class="modal fade" id="signoutModal" tabindex="-1" aria-labelledby="signoutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm-down">
+        <div class="modal-content">
 
-    <!-- Add Item -->
-    <div class="container mt-3">
-        <h5 class=" text-success"><strong>Add Item</strong></h5>  
-        <div class="d-flex justify-content-start align-items-end gap-4 flex-wrap">
-                <form action="/UI/create" method="post" class="row g-2 align-items-end">
-                    <div class="col-auto">
-                        <input type="text" name="category" placeholder="Category" class="form-control form-control-md text-uppercase" required>
-                    </div>
-                    <div class="col-auto">
-                        <input type="text" name="name" placeholder="Name" class="form-control form-control-md" required>
-                    </div>
-                    <div class="col-auto">
-                        <input type="number" step="0.01" name="base_co2" placeholder="Base CO₂" class="form-control form-control-md" required>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-outline-success btn-md">Create</button>
-                    </div>
-                </form>
+          <!-- Modal Header -->
+          <div class="modal-header bg-primary text-center">
+            <h5 class="modal-title text-white" id="signoutModalLabel">You are about to signout. Proceed?</h5>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="modal-footer bg-white">
+            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+            <form method="post" action="/admin/logout">
+              <button type="submit" class="btn btn-danger">Yes, Signout</button>
+            </form>
+          </div>
+
         </div>
+      </div>
     </div>
 
-    <!-- Search Item Row -->
-    <div class="container mt-3">
-        <h5 class=" text-success"><strong>Search</strong></h5> 
-        <div class="d-flex justify-content-start align-items-end gap-4 flex-wrap">
 
-                <!-- Search Form  -->
-                <form action="/UI/search" method="get" class="row g-2 align-items-end">
-                    <div class="col-auto">
-                        <input type="text" name="name" placeholder="Search by name" class="form-control form-control-md" required>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-outline-success btn-md">Search</button>
-                    </div>
-                </form>
-        </div>
-    </div> 
 
-   <!-- Item List Table -->
-    <div class="container mt-3">
-        <h3 class=" text-success text-center"><strong>ITEMS</strong></h3> 
-        <table class="table table-striped table-bordered">
-            <thead class="table-success text-center">
-                <tr>
-                    <th>Category</th>
-                    <th>Name</th>
-                    <th>Base CO₂ (kg)</th>
-                    <th>Modify</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr class="text-center">
-                    <td>{{ item.category }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.base_co2 }}</td>
-                    <td class="text-center d-flex justify-content-center gap-4">
-                        <!-- Edit Button -->
-                        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#updateModal{{ loop.index }}">
-                            Edit
-                        </button>
-                        <!-- Delete Button -->
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ loop.index }}">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    
-
-    <!--  Users Table -->
-    <div class="container mt-5">
-        <table class="table table-striped table-bordered">
-            <thead class="table-success text-center">
-                <h6 class=" text-success"><strong>Users</strong></h6>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Approve</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr class="text-center">
-                    <td>{{ user.name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        {% if user.is_verified %}
-                            <span class="badge bg-success">Verified</span>
-                        {% else %}
-                            <span class="badge bg-warning text-dark">Pending</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <form method="post" action="/UI/verify">
-                            <input type="hidden" name="email" value="{{ user.email }}">
-                             <button type="submit" class="btn btn-sm btn-outline-success" 
-                             {% if user.is_verified %} disabled {% endif %} >
-                                Verify
-                            </button>
-                        </form>
-                    </td>
-                    <td>
-                        <form method="post" action="/UI/delete_user">
-                            <input type="hidden" name="email" value="{{ user.email }}">
-                            <button type="submit" class="btn btn-sm btn-outline-success">
-                               Delete
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Modal to trigger item info for update-->
-    {% for item in items %}
-    <div class="modal fade" id="updateModal{{ loop.index }}" tabindex="-1" aria-labelledby="updateModalLabel{{ loop.index }}" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="/UI/update" method="post">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="updateModalLabel{{ loop.index }}">Update: {{ item.name }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <input type="hidden" name="original_name" value="{{ item.name }}">
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control" value="{{ item.name }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <input type="text" name="category" class="form-control" value="{{ item.category }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Base CO₂</label>
-                        <input type="number" step="any" name="base_co2" class="form-control" value="{{ item.base_co2 }}">
-                    </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Save changes</button>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-
-    <!-- Delete Confirmation Modal -->
-    {% for item in items %}
-    <div class="modal fade" id="deleteModal{{ loop.index }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ loop.index }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm-down">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header bg-danger text-center">
-                    <h5 class="modal-title text-white" id="deleteModalLabel{{ loop.index }}">Delete {{ item.name }}?</h5>
-                </div>
-
-                <!-- Modal Footer -->
-                <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
-                        <form action="/UI/delete" method="post">
-                            <input type="hidden" name="name" value="{{ item.name }}" required>
-                            <button type="submit" class="btn btn-outline-danger btn-md">Delete</button>
-                        </form> 
-                </div>
-
-            </div>
-        </div>
-    </div>
-    {% endfor %}
 
     <!-- Loads Bootstrap JS Bundle Including Popper for interactive components like modals, carousels and so on -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
